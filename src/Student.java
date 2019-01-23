@@ -2,18 +2,16 @@ import jdk.nashorn.internal.objects.annotations.Constructor;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
 
 @DefaultStudent
-public class Student {
+public class Student implements Comparable<Student> {
 
-    @IgnoreEquals
+    @CompareOrder(order = 0)
     String imie;
 
-    @IgnoreEquals
+    @CompareOrder(order = 1)
     String nazwisko;
 
     int index;
@@ -75,4 +73,41 @@ public class Student {
     }
 
 
+    @Override
+    public int compareTo(Student o) {
+        Class c = this.getClass();
+        Field[] m = c.getDeclaredFields();
+        List<Field> fields = new ArrayList<Field>();
+        int r;
+        for (Field s:
+             m) {
+            if(s.getAnnotation(CompareOrder.class) != null) fields.add(s);
+        }
+
+        Collections.sort(fields, new Comparator<Field>() {
+            @Override
+            public int compare(Field o1, Field o2) {
+                CompareOrder os1 = o1.getAnnotation(CompareOrder.class);
+                CompareOrder os2 = o2.getAnnotation(CompareOrder.class);
+                return os2.order() - os1.order();
+            }
+        });
+
+        try{
+            Class<Comparable> cls = Comparable.class;
+            for (Field f : fields) {
+                if (cls.isAssignableFrom(f.getType())) {
+                    Comparable cd = (Comparable)f.get(this);
+                    r = cd.compareTo((Comparable)f.get(o));
+                    if (r != 0) {
+                        return r;
+                    }
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
