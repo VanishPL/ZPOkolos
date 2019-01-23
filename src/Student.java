@@ -99,9 +99,7 @@ public class Student implements Comparable<Student> {
                 if (cls.isAssignableFrom(f.getType())) {
                     Comparable cd = (Comparable)f.get(this);
                     r = cd.compareTo((Comparable)f.get(o));
-                    if (r != 0) {
-                        return r;
-                    }
+                    if (r != 0) return r;
                 }
             }
         }catch (Exception e)
@@ -110,4 +108,19 @@ public class Student implements Comparable<Student> {
         }
         return 0;
     }
+
+    public static Comparator<Student> StudentNameComparator
+            = new Comparator<Student>() {
+
+        public int compare(Student fruit1, Student fruit2) {
+
+
+            //ascending order
+            return fruit1.compareTo(fruit2);
+
+            //descending order
+            //return fruitName2.compareTo(fruitName1);
+        }
+
+    };
 }
